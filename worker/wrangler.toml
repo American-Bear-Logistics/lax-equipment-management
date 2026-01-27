@@ -1,7 +1,0 @@
-name = "lax-equipment-api"
-main = "worker.js"
-compatibility_date = "2024-01-01"
-
-# 环境变量配置 (部署后在 Cloudflare Dashboard 设置)
-# [vars]
-# AIRTABLE_API_TOKEN = "your_token_here"

@@ -1,17 +1,45 @@
 // LAX 设备管理系统 - 前端 JavaScript
 
 // ==================== 配置 ====================
-// 部署后将此 URL 替换为你的 Cloudflare Worker URL
-const API_BASE_URL = 'https://your-worker.your-subdomain.workers.dev';
+// Airtable 配置 (Token 通过 GitHub Actions 注入)
+const AIRTABLE_CONFIG = {
+    baseId: 'appzHFkDDnjJb8zKd',
+    apiToken: '__AIRTABLE_API_TOKEN__', // 由 GitHub Actions 替换
+    tables: {
+        equipment: 'tblyFmoEDTgxh3YIj',
+        maintenance: 'tblvPfzEXuCLDR6Vb',
+        purchase: 'tblL3AUm128GAOdMQ'
+    }
+};
 
-// 本地开发时可以使用模拟数据
-const USE_MOCK_DATA = true; // 部署后设为 false
+// 检查是否已配置 Token
+const USE_MOCK_DATA = AIRTABLE_CONFIG.apiToken === '__AIRTABLE_API_TOKEN__';
 
 // ==================== 全局数据存储 ====================
 let equipmentData = [];
 let maintenanceData = [];
 let purchaseData = [];
 let currentFilter = 'all';
+
+// ==================== Airtable API 请求 ====================
+async function airtableRequest(tableId, method = 'GET', body = null) {
+    const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${tableId}`;
+
+    const options = {
+        method,
+        headers: {
+            'Authorization': `Bearer ${AIRTABLE_CONFIG.apiToken}`,
+            'Content-Type': 'application/json'
+        }
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, options);
+    return response.json();
+}
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', function () {
@@ -36,8 +64,7 @@ async function loadEquipment() {
         if (USE_MOCK_DATA) {
             equipmentData = getMockEquipment();
         } else {
-            const response = await fetch(`${API_BASE_URL}/api/equipment`);
-            const data = await response.json();
+            const data = await airtableRequest(`${AIRTABLE_CONFIG.tables.equipment}?view=Grid%20view`);
             equipmentData = data.records || [];
         }
         renderEquipmentTable();
@@ -54,8 +81,7 @@ async function loadMaintenance() {
         if (USE_MOCK_DATA) {
             maintenanceData = getMockMaintenance();
         } else {
-            const response = await fetch(`${API_BASE_URL}/api/maintenance`);
-            const data = await response.json();
+            const data = await airtableRequest(`${AIRTABLE_CONFIG.tables.maintenance}?view=Grid%20view`);
             maintenanceData = data.records || [];
         }
         renderMaintenanceTable();
@@ -70,8 +96,7 @@ async function loadPurchase() {
         if (USE_MOCK_DATA) {
             purchaseData = getMockPurchase();
         } else {
-            const response = await fetch(`${API_BASE_URL}/api/purchase`);
-            const data = await response.json();
+            const data = await airtableRequest(`${AIRTABLE_CONFIG.tables.purchase}?view=Grid%20view`);
             purchaseData = data.records || [];
         }
         renderPurchaseTable();
@@ -266,12 +291,13 @@ async function submitMaintenance() {
         return;
     }
 
-    const equipmentData = JSON.parse(document.getElementById('m-equipment').value);
+    const equipmentValue = document.getElementById('m-equipment').value;
+    const equipmentInfo = JSON.parse(equipmentValue);
 
     const ticketData = {
         '工单编号': generateTicketId('MT'),
-        '设备名称': equipmentData.name,
-        '设备编号': equipmentData.id,
+        '设备名称': equipmentInfo.name,
+        '设备编号': equipmentInfo.id,
         '工单类型': document.getElementById('m-type').value,
         '紧急程度': document.getElementById('m-urgency').value,
         '问题描述': document.getElementById('m-description').value,
@@ -282,13 +308,9 @@ async function submitMaintenance() {
 
     try {
         if (!USE_MOCK_DATA) {
-            const response = await fetch(`${API_BASE_URL}/api/maintenance`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(ticketData)
+            await airtableRequest(AIRTABLE_CONFIG.tables.maintenance, 'POST', {
+                records: [{ fields: ticketData }]
             });
-
-            if (!response.ok) throw new Error('提交失败');
         }
 
         // 添加到本地数据
@@ -335,13 +357,9 @@ async function submitQuickMaintenance() {
 
     try {
         if (!USE_MOCK_DATA) {
-            const response = await fetch(`${API_BASE_URL}/api/maintenance`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(ticketData)
+            await airtableRequest(AIRTABLE_CONFIG.tables.maintenance, 'POST', {
+                records: [{ fields: ticketData }]
             });
-
-            if (!response.ok) throw new Error('提交失败');
         }
 
         maintenanceData.unshift({ id: 'new', fields: ticketData });
@@ -365,7 +383,7 @@ async function submitPurchase() {
         return;
     }
 
-    const purchaseData_new = {
+    const purchaseDataNew = {
         '申请编号': generateTicketId('PR'),
         '设备名称': document.getElementById('p-name').value,
         '设备类型': document.getElementById('p-type').value,
@@ -384,16 +402,12 @@ async function submitPurchase() {
 
     try {
         if (!USE_MOCK_DATA) {
-            const response = await fetch(`${API_BASE_URL}/api/purchase`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(purchaseData_new)
+            await airtableRequest(AIRTABLE_CONFIG.tables.purchase, 'POST', {
+                records: [{ fields: purchaseDataNew }]
             });
-
-            if (!response.ok) throw new Error('提交失败');
         }
 
-        purchaseData.unshift({ id: 'new', fields: purchaseData_new });
+        purchaseData.unshift({ id: 'new', fields: purchaseDataNew });
         renderPurchaseTable();
 
         bootstrap.Modal.getInstance(document.getElementById('purchaseModal')).hide();
