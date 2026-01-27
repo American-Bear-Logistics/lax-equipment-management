@@ -13,10 +13,9 @@
 
 ```
 lax-equipment-management/
-├── frontend/           # 前端静态文件（部署到 GitHub Pages）
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
+├── index.html          # 主页面
+├── style.css           # 样式
+├── app.js              # 前端逻辑
 ├── worker/             # Cloudflare Worker（API 代理）
 │   ├── worker.js
 │   └── wrangler.toml
@@ -60,7 +59,7 @@ lax-equipment-management/
 
 ### 第二步：更新前端配置
 
-1. 打开 `frontend/app.js`，修改第 4-7 行：
+1. 打开 `app.js`，修改第 4-7 行：
    ```javascript
    const API_BASE_URL = 'https://lax-equipment-api.your-subdomain.workers.dev';
    const USE_MOCK_DATA = false;  // 改为 false
@@ -93,7 +92,7 @@ lax-equipment-management/
 
 ## 本地测试
 
-直接在浏览器中打开 `frontend/index.html` 即可预览（使用模拟数据）。
+直接在浏览器中打开 `index.html` 即可预览（使用模拟数据）。
 
 ## Airtable 配置
 
