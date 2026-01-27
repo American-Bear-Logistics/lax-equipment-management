@@ -12,8 +12,8 @@ const AIRTABLE_CONFIG = {
     }
 };
 
-// 检查是否已配置 Token
-const USE_MOCK_DATA = AIRTABLE_CONFIG.apiToken === '__AIRTABLE_API_TOKEN__';
+// 检查是否已配置 Token (占位符以双下划线开头)
+const USE_MOCK_DATA = AIRTABLE_CONFIG.apiToken.startsWith('__');
 
 // ==================== 全局数据存储 ====================
 let equipmentData = [];
