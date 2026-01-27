@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAX 设备管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-box-seam me-2"></i>LAX 设备管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('equipment')">
+                            <i class="bi bi-list-ul me-1"></i>设备清单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('maintenance')">
+                            <i class="bi bi-tools me-1"></i>维护工单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('purchase')">
+                            <i class="bi bi-cart-plus me-1"></i>采购申请
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 设备清单区域 -->
+        <section id="equipment-section" class="section-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-list-ul me-2"></i>设备清单</h2>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="filterEquipment('all')">全部</button>
+                    <button class="btn btn-outline-primary" onclick="filterEquipment('电子设备 Electronics')">电子设备</button>
+                    <button class="btn btn-outline-primary" onclick="filterEquipment('仓库设备 Warehouse')">仓库设备</button>
+                    <button class="btn btn-outline-primary" onclick="filterEquipment('办公设备 Office')">办公设备</button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">设备总数</h5>
+                            <h2 id="stat-total">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">正常使用</h5>
+                            <h2 id="stat-normal">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">待维护</h5>
+                            <h2 id="stat-maintenance">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">待维修</h5>
+                            <h2 id="stat-repair">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备列表表格 -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>设备编号</th>
+                                    <th>设备名称</th>
+                                    <th>类型</th>
+                                    <th>品牌型号</th>
+                                    <th>采购日期</th>
+                                    <th>采购价格</th>
+                                    <th>使用期限</th>
+                                    <th>下次维护</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="equipment-table">
+                                <tr>
+                                    <td colspan="10" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">加载中...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维护工单区域 -->
+        <section id="maintenance-section" class="section-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-tools me-2"></i>维护工单</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+                    <i class="bi bi-plus-circle me-1"></i>提交维护工单
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>工单编号</th>
+                                    <th>设备名称</th>
+                                    <th>工单类型</th>
+                                    <th>问题描述</th>
+                                    <th>紧急程度</th>
+                                    <th>提交人</th>
+                                    <th>提交日期</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maintenance-table">
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">加载中...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 采购申请区域 -->
+        <section id="purchase-section" class="section-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-cart-plus me-2"></i>采购申请</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#purchaseModal">
+                    <i class="bi bi-plus-circle me-1"></i>提交采购申请
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>申请编号</th>
+                                    <th>设备名称</th>
+                                    <th>类型</th>
+                                    <th>数量</th>
+                                    <th>预估总价</th>
+                                    <th>申请人</th>
+                                    <th>申请日期</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchase-table">
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">加载中...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 维护工单提交模态框 -->
+    <div class="modal fade" id="maintenanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-tools me-2"></i>提交维护工单</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="maintenance-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">设备名称 *</label>
+                                <select class="form-select" id="m-equipment" required>
+                                    <option value="">请选择设备</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">设备编号</label>
+                                <input type="text" class="form-control" id="m-equipment-id" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">工单类型 *</label>
+                                <select class="form-select" id="m-type" required>
+                                    <option value="">请选择</option>
+                                    <option value="定期维护">定期维护</option>
+                                    <option value="故障维修">故障维修</option>
+                                    <option value="检查保养">检查保养</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">紧急程度 *</label>
+                                <select class="form-select" id="m-urgency" required>
+                                    <option value="">请选择</option>
+                                    <option value="低 Low">低 Low</option>
+                                    <option value="中 Medium">中 Medium</option>
+                                    <option value="高 High">高 High</option>
+                                    <option value="紧急 Urgent">紧急 Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">问题描述 *</label>
+                            <textarea class="form-control" id="m-description" rows="4" required placeholder="请详细描述问题或维护需求..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">提交人 *</label>
+                                <input type="text" class="form-control" id="m-submitter" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">提交日期</label>
+                                <input type="date" class="form-control" id="m-date" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitMaintenance()">
+                        <i class="bi bi-send me-1"></i>提交工单
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 采购申请提交模态框 -->
+    <div class="modal fade" id="purchaseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-cart-plus me-2"></i>提交采购申请</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="purchase-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">设备名称 *</label>
+                                <input type="text" class="form-control" id="p-name" required placeholder="例如：Dell 显示器">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">设备类型 *</label>
+                                <select class="form-select" id="p-type" required>
+                                    <option value="">请选择</option>
+                                    <option value="电子设备 Electronics">电子设备 Electronics</option>
+                                    <option value="仓库设备 Warehouse">仓库设备 Warehouse</option>
+                                    <option value="办公设备 Office">办公设备 Office</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">品牌型号</label>
+                                <input type="text" class="form-control" id="p-model" placeholder="例如：Dell P2422H">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">采购原因 *</label>
+                                <select class="form-select" id="p-reason" required>
+                                    <option value="">请选择</option>
+                                    <option value="新增需求">新增需求</option>
+                                    <option value="更换旧设备">更换旧设备</option>
+                                    <option value="备用储备">备用储备</option>
+                                    <option value="业务扩展">业务扩展</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">数量 *</label>
+                                <input type="number" class="form-control" id="p-quantity" required min="1" value="1" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">单价预估 ($) *</label>
+                                <input type="number" class="form-control" id="p-unit-price" required min="0" step="0.01" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">总价预估 ($)</label>
+                                <input type="number" class="form-control" id="p-total-price" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">详细说明</label>
+                            <textarea class="form-control" id="p-description" rows="3" placeholder="请说明采购需求的具体情况..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">申请人 *</label>
+                                <input type="text" class="form-control" id="p-submitter" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">申请部门 *</label>
+                                <select class="form-select" id="p-department" required>
+                                    <option value="">请选择</option>
+                                    <option value="仓库 Warehouse">仓库 Warehouse</option>
+                                    <option value="办公室 Office">办公室 Office</option>
+                                    <option value="运输 Transportation">运输 Transportation</option>
+                                    <option value="IT">IT</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">期望到货日期</label>
+                                <input type="date" class="form-control" id="p-expected-date">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitPurchase()">
+                        <i class="bi bi-send me-1"></i>提交申请
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速维护工单模态框（从设备列表触发） -->
+    <div class="modal fade" id="quickMaintenanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-tools me-2"></i>快速提交维护工单</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quick-maintenance-form">
+                        <div class="mb-3">
+                            <label class="form-label">设备</label>
+                            <input type="text" class="form-control" id="qm-equipment-name" readonly>
+                            <input type="hidden" id="qm-equipment-id">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">工单类型 *</label>
+                            <select class="form-select" id="qm-type" required>
+                                <option value="故障维修">故障维修</option>
+                                <option value="定期维护">定期维护</option>
+                                <option value="检查保养">检查保养</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">紧急程度 *</label>
+                            <select class="form-select" id="qm-urgency" required>
+                                <option value="中 Medium">中 Medium</option>
+                                <option value="低 Low">低 Low</option>
+                                <option value="高 High">高 High</option>
+                                <option value="紧急 Urgent">紧急 Urgent</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">问题描述 *</label>
+                            <textarea class="form-control" id="qm-description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">您的姓名 *</label>
+                            <input type="text" class="form-control" id="qm-submitter" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-warning" onclick="submitQuickMaintenance()">
+                        <i class="bi bi-send me-1"></i>提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2" id="toast-icon"></i>
+                <strong class="me-auto" id="toast-title">通知</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
