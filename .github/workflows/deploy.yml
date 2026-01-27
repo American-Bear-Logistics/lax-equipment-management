@@ -25,6 +25,16 @@ jobs:
         run: |
           sed -i "s/__AIRTABLE_API_TOKEN__/${{ secrets.AIRTABLE_API_TOKEN }}/g" app.js
 
+      - name: Verify token injection
+        run: |
+          echo "Checking if placeholder was replaced..."
+          if grep -q "__AIRTABLE_API_TOKEN__" app.js; then
+            echo "ERROR: Placeholder still exists!"
+            exit 1
+          else
+            echo "Token injected successfully"
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
