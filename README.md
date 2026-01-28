@@ -107,3 +107,4 @@ lax-equipment-management/
 
 - Airtable API Token 通过 Cloudflare Worker 环境变量保护，不会暴露在前端代码中
 - Worker 只提供特定的 API 端点，限制了对 Airtable 的访问范围
+- https://american-bear-logistics.github.io/lax-equipment-management/# --1470205
